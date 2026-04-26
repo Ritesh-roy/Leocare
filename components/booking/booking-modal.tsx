@@ -37,7 +37,7 @@ export function BookingModal({ doctor, open, onOpenChange }: BookingModalProps) 
   const { addAppointment } = useAppointments()
   const configuredApiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.VITE_API_URL
   const fallbackApiBaseUrl = process.env.NODE_ENV === "production"
-    ? "https://leocare-api.onrender.com"
+    ? "/_/backend"
     : "http://localhost:5000"
   const apiBaseUrl = (configuredApiBaseUrl || fallbackApiBaseUrl).replace(/\/+$/, "")
 
