@@ -45,12 +45,26 @@ app.get("/api/health", (req, res) => {
 
 app.use("/api/appointments", appointmentsRouter)
 
+app.use((req, res) => {
+  res.status(404).json({
+    message: `Route not found: ${req.method} ${req.originalUrl}`,
+  })
+})
+
 app.use((error, req, res, next) => {
   if (error && error.message === "Not allowed by CORS") {
     return res.status(403).json({ message: "CORS blocked for this origin" })
   }
 
-  return next(error)
+  if (error instanceof SyntaxError && error.status === 400 && "body" in error) {
+    return res.status(400).json({ message: "Invalid JSON payload" })
+  }
+
+  console.error("Unhandled error:", error)
+
+  return res.status(error.status || 500).json({
+    message: error.message || "Internal server error",
+  })
 })
 
 connectDB()
