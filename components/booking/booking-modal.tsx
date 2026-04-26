@@ -37,7 +37,7 @@ export function BookingModal({ doctor, open, onOpenChange }: BookingModalProps) 
   const { addAppointment } = useAppointments()
   const configuredApiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.VITE_API_URL
   const fallbackApiBaseUrl = process.env.NODE_ENV === "production"
-    ? "/_/backend"
+    ? "https://leocare-api.onrender.com"
     : "http://localhost:5000"
   const apiBaseUrl = (configuredApiBaseUrl || fallbackApiBaseUrl).replace(/\/+$/, "")
 
@@ -90,7 +90,8 @@ export function BookingModal({ doctor, open, onOpenChange }: BookingModalProps) 
         }),
       })
 
-      const payload = (await response.json()) as {
+      const rawResponse = await response.text()
+      let payload: {
         message?: string
         appointment?: {
           patientId: string
@@ -111,6 +112,12 @@ export function BookingModal({ doctor, open, onOpenChange }: BookingModalProps) 
           reason: string
           notes?: string
         }
+      }
+
+      try {
+        payload = JSON.parse(rawResponse)
+      } catch {
+        throw new Error(rawResponse || "Server returned an invalid response")
       }
 
       if (!response.ok || !payload.appointment) {
